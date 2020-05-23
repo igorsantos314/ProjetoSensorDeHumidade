@@ -203,16 +203,45 @@ void setup() {
     WiFiMulti.addAP(mSSID, mPASS);
 }
 
-void loop() {
-    if (_timeout){
+//variaveis OTA
+bool statusUpadate = true;
+int cont = 0;
+
+//Chamada pra verificação de Update
+void callUpdate(){
+  if (_timeout){
       //S.println(system_get_free_heap_size());
       S.println("cuco!");
       checkUpdate();
       _timeout = false;
     }
-    yield();
+  yield();
+}
 
-    //Codigo Funcional
+//Verificar variavel contadora
+void checkConter(){
+  //Verifica Atualização a cada 50
+    if(cont == 10){
+      cont = 0;
+      statusUpadate = true;
+    }
+    
+    cont = cont + 1;
+    //S.println(cont);
+}
+
+void loop() {
+
+    S.print("Verificar Atualização? ");
+    S.println(statusUpadate);
+    
+    //Verificação de atualização no primeiro Boot
+    if (statusUpadate == true){
+      callUpdate();
+      statusUpadate = false;
+    }
+  
+    //Main do Codigo Principal
     if ( !tb.connected() ) {
       reconnect();
     }
@@ -223,4 +252,9 @@ void loop() {
     }
 
     tb.loop();
+    delay(1000);
+
+    //Função contadora
+    checkConter();
+    
 }
