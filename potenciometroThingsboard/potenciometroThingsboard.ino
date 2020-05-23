@@ -11,7 +11,7 @@
 #define DHTPIN 2
 #define DHTTYPE DHT22
 
-char thingsboardServer[] = "192.168.0.105";
+char thingsboardServer[] = "192.168.0.103";
 
 WiFiClient wifiClient;
 
