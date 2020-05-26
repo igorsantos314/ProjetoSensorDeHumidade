@@ -177,7 +177,16 @@ void reconnect() {
 }
 
 //-----------------------------------------------------------------------------------------------------
-
+//Chamada pra verificação de Update
+void callUpdate(){
+  if (_timeout){
+      //S.println(system_get_free_heap_size());
+      S.println("cuco!");
+      checkUpdate();
+      _timeout = false;
+    }
+  yield();
+}
 
 void setup() {
   //ESP.wdtDisable();
@@ -201,22 +210,30 @@ void setup() {
     
     S.println("Starting connection, please wait...");
     WiFiMulti.addAP(mSSID, mPASS);
+
+    //Verificação de atualização no primeiro Boot
+    callUpdate();
+
+    //Main do Codigo Principal
+    if ( !tb.connected() ) {
+      reconnect();
+    }
+
+    if ( millis() - lastSend > 1000 ) { // Update and send only after 1 seconds
+      getAndSendTemperatureAndHumidityData();
+      lastSend = millis();
+    }
+
+    tb.loop();
+    delay(1000);
+
+    S.println(" -- Vamos Dormir zzZ");
+    ESP.deepSleep(30e6);
 }
 
 //variaveis OTA
 bool statusUpadate = true;
 int cont = 0;
-
-//Chamada pra verificação de Update
-void callUpdate(){
-  if (_timeout){
-      //S.println(system_get_free_heap_size());
-      S.println("cuco!");
-      checkUpdate();
-      _timeout = false;
-    }
-  yield();
-}
 
 //Verificar variavel contadora
 void checkConter(){
@@ -231,39 +248,5 @@ void checkConter(){
 }
 
 void loop() {
-
-    S.println("...");
-    S.print("Verificar Atualização? ");
-    S.println(statusUpadate);
-    S.println("...");
-    
-    //Verificação de atualização no primeiro Boot
-    if (statusUpadate == true){
-      
-      //Exibe a Versão antes de verificar novos updates
-      S.println("...");
-      S.print("==> Software Version: ");
-      S.println(VERSION);
-      S.println("...");
-      
-      callUpdate();
-      statusUpadate = false;
-    }
-  
-    //Main do Codigo Principal
-    if ( !tb.connected() ) {
-      reconnect();
-    }
-
-    if ( millis() - lastSend > 1000 ) { // Update and send only after 1 seconds
-      getAndSendTemperatureAndHumidityData();
-      lastSend = millis();
-    }
-
-    tb.loop();
-    delay(1000);
-
-    //Função contadora
-    checkConter();
     
 }
